@@ -16,7 +16,10 @@ An example of writing a C++ and CUDA extension for PyTorch. See
 - Build C++ extensions by going into the `cpp/` folder and executing `python setup.py install`,
 - Build CUDA extensions by going into the `cuda/` folder and executing `python setup.py install`, but it is still unfinished,
 <!-- - JIT-compile C++ and/or CUDA extensions by going into the `cpp/` or `cuda/` folder and calling `python jit.py`, which will JIT-compile the extension and load it, -->
-- Benchmark Python vs. C++ vs. CUDA by running `python benchmark.py {py, cpp, cuda} [--cuda]`,
+<!-- - Benchmark Python vs. C++ vs. CUDA by running `python benchmark.py {py, cpp, cuda} [--cuda]`,
 - Run gradient checks on the code by running `python grad_check.py {py, cpp, cuda} [--cuda]`.
-- Run output checks on the code by running `python check.py {forward, backward} [--cuda]`.
+- Run output checks on the code by running `python check.py {forward, backward} [--cuda]`. -->
 
+# Problem to solve now
+
+- C++ extension can be built, however, cuda extension can not be built. 
