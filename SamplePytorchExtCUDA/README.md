@@ -12,7 +12,7 @@
 
 # Guide
 
-- Make sure all the [dependencies]() are installed
+- Make sure all the [dependencies](#dependencies) are installed
 - Open new CUDA runtime solution in Visual Studio named `double_kernel` in current directory
 - Replace codes in `double_kernel\double_kernel\kernel.cu` with codes in [double_kernel.cu](double_kernel.cu)
 - Compile the solution we have built as a static library and release version with Visual Studio
