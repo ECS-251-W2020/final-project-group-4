@@ -7,6 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1i7Z1IHULlsn-zp4XoG-uHMPyb1iiwYO3
 """
 
+import PIL
 from PIL import Image
 !pip install pycryptodome 
 from Crypto.Cipher import AES
@@ -17,8 +18,9 @@ import random
 import string
 from io import BytesIO
 from google.colab import files
-uploaded = files.upload()
-im = Image.open(BytesIO(uploaded['test.bmp']))
+#uploaded = files.upload()
+#im = Image.open(BytesIO(uploaded['test.bmp']))
+
 
 #from google.colab import files
 #uploaded = files.upload()
@@ -29,8 +31,13 @@ def key_generator(size = 16, chars = string.ascii_lowercase):
 
 
 
-
+filename = "blackhat.bmp"
+filename_encrypted_ecb = "blackhat_encrypted_ecb"
+filename_encrypted_cbc= "blackhat_encrypted_cbc"
 format = "BMP"
+
+im = PIL.Image.open(filename)
+im.show()
 #利用函数随机生成一个由小写字母组成的字符串
 key = key_generator(16)
 
@@ -51,7 +58,7 @@ def trans_format_RGB(data):
 
 def encrypt_image_ecb(filename):
     #打开bmp图片，然后将之转换为RGB图像
-    im = Image.open(filename)
+    im = PIL.Image.open(filename)
     #将图像数据转换为像素值字节
     value_vector = im.convert("RGB").tobytes()
 
@@ -64,7 +71,7 @@ def encrypt_image_ecb(filename):
         #print(new[i])
 
     #创建一个新对象，存储相对应的值
-    im2 = Image.new(im.mode, im.size)
+    im2 = PIL.Image.new(im.mode, im.size)
     im2.putdata(value_encrypt)
 
     # 将对象保存为对应格式的图像
@@ -72,7 +79,7 @@ def encrypt_image_ecb(filename):
 
 def encrypt_image_cbc(filename):
     #打开bmp图片，然后将之转换为RGB图像
-    im = Image.open(filename)
+    im = PIL.Image.open(filename)
     value_vector = im.convert("RGB").tobytes()
 
     # 将图像数据转换为像素值字节
@@ -82,17 +89,17 @@ def encrypt_image_cbc(filename):
     value_encrypt = trans_format_RGB(aes_cbc_encrypt(key, pad(value_vector))[:imlength])
 
     # 创建一个新对象，存储相对应的值
-    im2 = Image.new(im.mode, im.size)
+    im2 = PIL.Image.new(im.mode, im.size)
     im2.putdata(value_encrypt)
 
     # 将对象保存为对应格式的图像
     im2.save(filename_encrypted_cbc + "." + format, format)
 
 # CBC加密
-def aes_cbc_encrypt(key, data, mode=AES.MODE_CBC):
+def aes_cbc_encrypt(key, data):
     #IV为随机值
-    IV = key_generator(16)
-    aes = AES.new(key, mode, IV)
+    #IV = key_generator(16)
+    aes = AES.new(key.encode('utf8'), AES.MODE_CBC)
     new_data = aes.encrypt(data)
     return new_data
 
@@ -100,11 +107,11 @@ def aes_cbc_encrypt(key, data, mode=AES.MODE_CBC):
 # ECB加密
 def aes_ecb_encrypt(key, data, mode=AES.MODE_ECB):
     #默认模式为ECB加密
-    aes = AES.new(key, mode)
+    aes = AES.new(key.encode('utf8'), mode)
     new_data = aes.encrypt(data)
     return new_data
 
-
-
-encrypt_image_ecb(filename)
 encrypt_image_cbc(filename)
+encrypt_image_ecb(filename)
+
+key
