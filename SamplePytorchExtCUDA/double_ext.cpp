@@ -21,7 +21,7 @@ at::Tensor double_ext_forward(torch::Tensor input) {
     //AT_DISPATCH_FLOATING_TYPES(input.type(), "double_ext_forward", ([&] {
     //    double_kernel<scalar_t><<<blocks, threads>>>(input.data<scalar_t>(), ret.data<scalar_t>(), state_size);
     //}));
-    launch_double_ext_cuda_kernel(input.data<float>(), ret.data<float>(), state_size);
+    launch_double_ext_cuda_kernel(input.data<float>(), ret.data<float>(), state_size);  // need statement
     return ret;
 }
 

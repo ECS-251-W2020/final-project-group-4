@@ -1,0 +1,7 @@
+# Visual Studio solution file
+double_kernel/
+
+# Extended Python package file
+dist/
+build/
+double_ext.egg-info/
