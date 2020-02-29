@@ -304,10 +304,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="$(projectname).cpp" />
-    <ClCompile Include="$(projectname)_t.c" />
+    <ClCompile Include="StorageEnclave_t.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(projectname)_t.h" />
+    <ClInclude Include="..\CUDADemo\constant.h" />
+    <ClInclude Include="StorageEnclave_t.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="$(projectname).edl">

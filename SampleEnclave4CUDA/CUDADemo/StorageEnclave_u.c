@@ -2,7 +2,7 @@
 #include <errno.h>
 
 typedef struct ms_set_secret4_t {
-	int* ms_secret;
+	unsigned char* ms_secret;
 } ms_set_secret4_t;
 
 typedef struct ms_copy_secret_to_device_t {
@@ -10,11 +10,11 @@ typedef struct ms_copy_secret_to_device_t {
 } ms_copy_secret_to_device_t;
 
 typedef struct ms_ocall_print_secret_t {
-	int* ms_value;
+	unsigned char* ms_value;
 } ms_ocall_print_secret_t;
 
 typedef struct ms_ocall_send_to_device_t {
-	int* ms_value;
+	unsigned char* ms_value;
 	void* ms_devicePtr;
 } ms_ocall_send_to_device_t;
 
@@ -118,11 +118,11 @@ static const struct {
 	}
 };
 
-sgx_status_t set_secret4(sgx_enclave_id_t eid, int secret[4])
+sgx_status_t set_secret4(sgx_enclave_id_t eid, unsigned char secret[16])
 {
 	sgx_status_t status;
 	ms_set_secret4_t ms;
-	ms.ms_secret = (int*)secret;
+	ms.ms_secret = (unsigned char*)secret;
 	status = sgx_ecall(eid, 0, &ocall_table_StorageEnclave, &ms);
 	return status;
 }

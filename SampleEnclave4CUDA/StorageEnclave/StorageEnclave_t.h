@@ -13,12 +13,12 @@
 extern "C" {
 #endif
 
-void set_secret4(int secret[4]);
+void set_secret4(unsigned char secret[16]);
 void print_secret(void);
 void copy_secret_to_device(void* devicePtr);
 
-sgx_status_t SGX_CDECL ocall_print_secret(int value[4]);
-sgx_status_t SGX_CDECL ocall_send_to_device(int value[4], void* devicePtr);
+sgx_status_t SGX_CDECL ocall_print_secret(unsigned char value[16]);
+sgx_status_t SGX_CDECL ocall_send_to_device(unsigned char value[176], void* devicePtr);
 sgx_status_t SGX_CDECL sgx_oc_cpuidex(int cpuinfo[4], int leaf, int subleaf);
 sgx_status_t SGX_CDECL sgx_thread_wait_untrusted_event_ocall(int* retval, const void* self);
 sgx_status_t SGX_CDECL sgx_thread_set_untrusted_event_ocall(int* retval, const void* waiter);

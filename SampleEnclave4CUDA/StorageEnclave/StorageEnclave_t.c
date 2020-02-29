@@ -28,7 +28,7 @@
 
 
 typedef struct ms_set_secret4_t {
-	int* ms_secret;
+	unsigned char* ms_secret;
 } ms_set_secret4_t;
 
 typedef struct ms_copy_secret_to_device_t {
@@ -36,11 +36,11 @@ typedef struct ms_copy_secret_to_device_t {
 } ms_copy_secret_to_device_t;
 
 typedef struct ms_ocall_print_secret_t {
-	int* ms_value;
+	unsigned char* ms_value;
 } ms_ocall_print_secret_t;
 
 typedef struct ms_ocall_send_to_device_t {
-	int* ms_value;
+	unsigned char* ms_value;
 	void* ms_devicePtr;
 } ms_ocall_send_to_device_t;
 
@@ -87,9 +87,9 @@ static sgx_status_t SGX_CDECL sgx_set_secret4(void* pms)
 	sgx_lfence();
 	ms_set_secret4_t* ms = SGX_CAST(ms_set_secret4_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
-	int* _tmp_secret = ms->ms_secret;
-	size_t _len_secret = 4 * sizeof(int);
-	int* _in_secret = NULL;
+	unsigned char* _tmp_secret = ms->ms_secret;
+	size_t _len_secret = 16 * sizeof(unsigned char);
+	unsigned char* _in_secret = NULL;
 
 	CHECK_UNIQUE_POINTER(_tmp_secret, _len_secret);
 
@@ -104,7 +104,7 @@ static sgx_status_t SGX_CDECL sgx_set_secret4(void* pms)
 			status = SGX_ERROR_INVALID_PARAMETER;
 			goto err;
 		}
-		_in_secret = (int*)malloc(_len_secret);
+		_in_secret = (unsigned char*)malloc(_len_secret);
 		if (_in_secret == NULL) {
 			status = SGX_ERROR_OUT_OF_MEMORY;
 			goto err;
@@ -180,10 +180,10 @@ SGX_EXTERNC const struct {
 };
 
 
-sgx_status_t SGX_CDECL ocall_print_secret(int value[4])
+sgx_status_t SGX_CDECL ocall_print_secret(unsigned char value[16])
 {
 	sgx_status_t status = SGX_SUCCESS;
-	size_t _len_value = 4 * sizeof(int);
+	size_t _len_value = 16 * sizeof(unsigned char);
 
 	ms_ocall_print_secret_t* ms = NULL;
 	size_t ocalloc_size = sizeof(ms_ocall_print_secret_t);
@@ -205,7 +205,7 @@ sgx_status_t SGX_CDECL ocall_print_secret(int value[4])
 	ocalloc_size -= sizeof(ms_ocall_print_secret_t);
 
 	if (value != NULL) {
-		ms->ms_value = (int*)__tmp;
+		ms->ms_value = (unsigned char*)__tmp;
 		if (_len_value % sizeof(*value) != 0) {
 			sgx_ocfree();
 			return SGX_ERROR_INVALID_PARAMETER;
@@ -228,10 +228,10 @@ sgx_status_t SGX_CDECL ocall_print_secret(int value[4])
 	return status;
 }
 
-sgx_status_t SGX_CDECL ocall_send_to_device(int value[4], void* devicePtr)
+sgx_status_t SGX_CDECL ocall_send_to_device(unsigned char value[176], void* devicePtr)
 {
 	sgx_status_t status = SGX_SUCCESS;
-	size_t _len_value = 4 * sizeof(int);
+	size_t _len_value = 176 * sizeof(unsigned char);
 
 	ms_ocall_send_to_device_t* ms = NULL;
 	size_t ocalloc_size = sizeof(ms_ocall_send_to_device_t);
@@ -253,7 +253,7 @@ sgx_status_t SGX_CDECL ocall_send_to_device(int value[4], void* devicePtr)
 	ocalloc_size -= sizeof(ms_ocall_send_to_device_t);
 
 	if (value != NULL) {
-		ms->ms_value = (int*)__tmp;
+		ms->ms_value = (unsigned char*)__tmp;
 		if (_len_value % sizeof(*value) != 0) {
 			sgx_ocfree();
 			return SGX_ERROR_INVALID_PARAMETER;

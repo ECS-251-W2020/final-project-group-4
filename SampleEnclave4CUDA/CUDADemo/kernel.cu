@@ -3,7 +3,7 @@
 #include "device_launch_parameters.h"
 
 #include <stdio.h>
-
+#include "constant.h"
 
 __global__ void addKernel(int *c, const int *a, const int *b)
 {
@@ -13,26 +13,26 @@ __global__ void addKernel(int *c, const int *a, const int *b)
 
 __global__ void computeHashKernel(void *value) {
 	int idx = threadIdx.x;
-	int *arr = (int*)value;
-	if (idx < 4) {
+	unsigned char *arr = (unsigned char*)value;
+	if (idx < AES_EXP_NB) {
 		int v = (int)arr[idx];
 		arr[idx] = (v * v % 97);
 	}
 }
 
 int computeHashOnDevice(void *value) {
-	computeHashKernel<<<1, 4>>> (value);
-	int buf[4];
-	cudaMemcpy(buf, value, 4 * sizeof(int), cudaMemcpyDeviceToHost);
+	computeHashKernel<<<1, AES_EXP_NB>>> (value);
+	unsigned char buf[AES_EXP_NB];
+	cudaMemcpy(buf, value, AES_EXP_NB * sizeof(unsigned char), cudaMemcpyDeviceToHost);
 	int ret = 0;
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < AES_EXP_NB; ++i) {
 		ret = (ret * 233 + buf[i]) % 980209;
 	}
 	return ret;
 }
-int computeHashOnHost(int *value) {
+int computeHashOnHost(unsigned char *value) {
 	int ret = 0;
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < AES_EXP_NB; ++i) {
 		int v = value[i];
 		ret = (ret * 233 + v*v % 97) % 980209;
 	}
