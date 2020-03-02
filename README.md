@@ -1,15 +1,15 @@
 # Group 4 Final project
-More details about the project can be seen in [Proposal.pdf](Proposal.pdf).
 
-## Introduction
-Two main components:
-* AegisEngine: Intel SGX + CUDA AES algorithm implementation
-* PytorchAegis: Pytorch binding for AegisEngine
+We want to combine the security of hardware enclave for CPU and the speed of machine learning model for GPU, in order to manipulate data on GPU using key from CPU enclave. More details about the project can be seen in [Proposal.pdf](Proposal.pdf).
 
-Usage:
-1. Build AegisEngine in PreRelease mode
-2. Copy the dll and lib files to PytorchAegis
-3. Install PytorchAegis with `setup.py`
+## Introduction to the directory
 
-See `PytorchAegis/test_run.py` for the interface usage.
+Two main folders:
+
+* [AegisEngine](./AegisEngine/): Intel SGX + CUDA AES algorithm implementation
+* [PytorchAegis](./PytorchAegis/): Pytorch binding for AegisEngine plus a runable demo for both array and image.
+
+Other files are our previous works, such as a sample for implementing AES algorithm, a sample for Pytorch extension with CUDA, a sample for Intel Enclave(SGX).
+
+
 

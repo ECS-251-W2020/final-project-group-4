@@ -1,0 +1,4 @@
+build/
+dist/
+pytorch_aegis.egg-info/
+image_to_numpy/__pycache__/
