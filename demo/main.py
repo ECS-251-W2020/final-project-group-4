@@ -2,15 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import torchvision
-from torchvision import datasets, transforms
-import matplotlib.pyplot as plt
-import numpy as np
+from torchvision import datasets
 import time
 import pytorch_aegis
 
 epochs = 10
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class Net(nn.Module):
@@ -43,23 +39,21 @@ class Net(nn.Module):
 
 def load_encrypted_data(key):
     # train data
-    train_dataset = datasets.MNIST('../data', train=True)
+    train_dataset = datasets.MNIST('./data', train=True)
     encrypted_train_data = []
-    train_labels = []
-    for data, label in train_dataset:
+    train_labels = train_dataset.targets
+    for data in train_dataset.data.to('cuda'):
         encrypted_data = pytorch_aegis.encrypt_data(data.flatten(), key)
         encrypted_train_data.append(encrypted_data)
-        train_labels.append(label)
 
     # test data
-    test_dataset = datasets.MNIST('../data', train=False)
+    test_dataset = datasets.MNIST('./data', train=False)
     encrypted_test_data = []
-    test_labels = []
-    for data, label in test_dataset.data:
+    test_labels = test_dataset.targets
+    for data in test_dataset.data.to('cuda'):
         encrypted_data = pytorch_aegis.encrypt_data(data.flatten(), key)
         encrypted_test_data.append(encrypted_data)
-        test_labels.append(label)
-    return encrypted_train_data, train_labels, encrypted_test_data, test_labels
+    return encrypted_train_data.to('cpu'), train_labels, encrypted_test_data.to('cpu'), test_labels
 
 
 if __name__ == '__main__':
@@ -74,11 +68,11 @@ if __name__ == '__main__':
 
     # define model
     net = Net()
-    net = net.to(device)
+    net = net.to('cuda')
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
-    # start_time = time.time()
+    start_time = time.time()
     for epoch in range(epochs):
         # train
         running_loss = 0.0
@@ -86,7 +80,7 @@ if __name__ == '__main__':
             # batch samples
             inputs = encrypted_train_data[i * 64: (i + 1) * 64]
             labels = train_labels[i * 64: (i + 1) * 64]
-            inputs, labels, key = inputs.to(device), labels.to(device), key.to(device)
+            inputs, labels = inputs.to('cuda'), labels.to('cuda')
             # run
             optimizer.zero_grad()
             outputs = net(inputs, key)
@@ -106,7 +100,7 @@ if __name__ == '__main__':
             # batch samples
             inputs = encrypted_test_data[i * 64: (i + 1) * 64]
             labels = test_labels[i * 64: (i + 1) * 64]
-            inputs, labels, key = inputs.to(device), labels.to(device), key.to(device)
+            inputs, labels = inputs.to('cuda'), labels.to('cuda')
             # run
             optimizer.zero_grad()
             outputs = net(inputs, key)
@@ -115,6 +109,6 @@ if __name__ == '__main__':
 
         print("Test Accuracy =", correct_num.item() / len(encrypted_test_data))
 
-    # end_time = time.time()
-    # print('Finished Training')
-    # print("time cost =", end_time - start_time, 's')
+    end_time = time.time()
+    print('Finished Training')
+    print("time cost =", end_time - start_time, 's')
