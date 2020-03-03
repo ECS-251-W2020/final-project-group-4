@@ -1,6 +1,6 @@
 # Final project 'PytorchAegis' demo
 
-# Dependencies
+## Dependencies
 
 - Windows OS x64
 - Intel CPU compatible with SGX
@@ -10,14 +10,14 @@
 - Pytorch 1.4.0 stable
 - Some Python libraries are not listed here
 
-# Usage:
+## Usage:
 
 1. Build [AegisEngine](../AegisEngine/) in PreRelease mode
-2. Copy the dll and lib files to [PytorchAegis](./)
+2. Copy the dll and lib all 3 files to [PytorchAegis](./)
 3. Install PytorchAegis with [setup.py](./setup.py)
 
-See `PytorchAegis/test_run.py` for the interface usage for testing the demo.
+See [test_run.py](./test_run.py) for the interface usage for testing the demo.
 
-# Statement
+## Clarification
 
-- The demo here is to make sure we can run the whole thing. But some thing needed to make it clear. Practically, we do not touch host memory with the exact data. Here in the `test_run.py`, we load a image from disk to host memory and then copy to GPU memory, however, we won't do that since we only trust GPU memory.
+- The demo here is to make sure we can run the whole thing. But some thing needed to make it clear. Practically, we do not touch host memory with the exact data. Here in the `test_run.py`, we load a image from disk to host memory and then copy to GPU memory, however, we won't do that since the training data in main memory from user should be encrpyted.

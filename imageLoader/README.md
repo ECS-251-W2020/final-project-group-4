@@ -7,7 +7,7 @@ Otherwise, it is just a normal load.
 
 After loading, you can pass the array to some other Python library or function which works with Numpy arrary.
 
-## Note about Exif Orientation data?
+## Note about Exif Orientation data
 
 Most images captured by cell phones and consumer cameras aren't stored on disk in the same orientation they appear on screen. Exif Orientation data tells the program which way the image needs to be rotated to display correctly. Not handling Exif Orientation is a common source of bugs in Computer Vision and Machine Learning applications.
 

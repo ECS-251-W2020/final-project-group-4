@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets
 import time
-# import pytorch_aegis
+import pytorch_aegis
 
 epochs = 10
 
@@ -20,7 +20,7 @@ class Net(nn.Module):
 
     def forward(self, x, key):
         x = pytorch_aegis.decrypt_data(x, key)
-        x = x.reshape((1, 28, 28))
+        x = x.reshape((64, 28, 28))
         x = F.max_pool2d(F.relu(self.conv1(x)), 2)
         x = F.max_pool2d(F.relu(self.conv2(x)), 2)
         x = x.view(-1, self.num_flat_features(x))
@@ -40,22 +40,24 @@ class Net(nn.Module):
 def load_encrypted_data(key):
     # train data
     train_dataset = datasets.MNIST('./data', train=True)
-    encrypted_train_data = torch.zeros((train_dataset.__len__(), 28 * 28), device='cuda')
+    # encrypted_train_data = torch.zeros((train_dataset.__len__(), 28 * 28), device='cuda')
+    encrypted_train_data = torch.zeros((640, 28 * 28), device='cuda', dtype=torch.uint8)
     train_labels = train_dataset.targets
     for i, data in enumerate(train_dataset.data.to('cuda')):
         # only use 640 samples for trying
-        if i > 640:
+        if i >= 640:
             break
         encrypted_data = pytorch_aegis.encrypt_data(data.flatten(), key)
         encrypted_train_data[i] = encrypted_data
 
     # test data
     test_dataset = datasets.MNIST('./data', train=False)
-    encrypted_test_data = torch.zeros((test_dataset.__len__(), 28 * 28), device='cuda')
+    # encrypted_test_data = torch.zeros((test_dataset.__len__(), 28 * 28), device='cuda')
+    encrypted_test_data = torch.zeros((640, 28 * 28), device='cuda', dtype=torch.uint8)
     test_labels = test_dataset.targets
     for i, data in enumerate(test_dataset.data.to('cuda')):
         # only use 640 samples for trying
-        if i > 640:
+        if i >= 640:
             break
         encrypted_data = pytorch_aegis.encrypt_data(data.flatten(), key)
         encrypted_test_data[i] = encrypted_data
