@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torchvision import datasets
 import time
-import pytorch_aegis
+# import pytorch_aegis
 
 epochs = 10
 
@@ -40,19 +40,25 @@ class Net(nn.Module):
 def load_encrypted_data(key):
     # train data
     train_dataset = datasets.MNIST('./data', train=True)
-    encrypted_train_data = []
+    encrypted_train_data = torch.zeros((train_dataset.__len__(), 28 * 28), device='cuda')
     train_labels = train_dataset.targets
-    for data in train_dataset.data.to('cuda'):
+    for i, data in enumerate(train_dataset.data.to('cuda')):
+        # only use 640 samples for trying
+        if i > 640:
+            break
         encrypted_data = pytorch_aegis.encrypt_data(data.flatten(), key)
-        encrypted_train_data.append(encrypted_data)
+        encrypted_train_data[i] = encrypted_data
 
     # test data
     test_dataset = datasets.MNIST('./data', train=False)
-    encrypted_test_data = []
+    encrypted_test_data = torch.zeros((test_dataset.__len__(), 28 * 28), device='cuda')
     test_labels = test_dataset.targets
-    for data in test_dataset.data.to('cuda'):
+    for i, data in enumerate(test_dataset.data.to('cuda')):
+        # only use 640 samples for trying
+        if i > 640:
+            break
         encrypted_data = pytorch_aegis.encrypt_data(data.flatten(), key)
-        encrypted_test_data.append(encrypted_data)
+        encrypted_test_data[i] = encrypted_data
     return encrypted_train_data.to('cpu'), train_labels, encrypted_test_data.to('cpu'), test_labels
 
 
