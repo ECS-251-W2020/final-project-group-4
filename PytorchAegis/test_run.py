@@ -19,7 +19,8 @@ import image_to_numpy
 data = image_to_numpy.load_image_file("my_file.jpg")
 data = torch.as_tensor(data)
 datasize = data.size()
-data = data.reshape(-1).cuda()
+# data = data.reshape(-1).cuda()
+data = data.cuda()   # The pytorch_aegis is compatible with normal matrix, not just for array
 edata = pytorch_aegis.encrypt_data(data, key)
 dedata = pytorch_aegis.decrypt_data(edata, key)
 
