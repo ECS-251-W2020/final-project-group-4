@@ -6,7 +6,8 @@ from torchvision import datasets
 import time
 import pytorch_aegis
 
-epochs = 10
+epochs = 100
+
 
 
 class Net(nn.Module):
@@ -18,7 +19,7 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 10)
 
-    def forward(self, x, key):
+    def forward(self, x):
         x = F.max_pool2d(F.relu(self.conv1(x)), 2)
         x = F.max_pool2d(F.relu(self.conv2(x)), 2)
         x = x.view(-1, self.num_flat_features(x))
@@ -35,40 +36,32 @@ class Net(nn.Module):
         return num_features
 
 
-def load_encrypted_data(key):
-    # train data
-    train_dataset = datasets.MNIST('./data', train=True)
-    # encrypted_train_data = torch.zeros((train_dataset.__len__(), 28 * 28), device='cuda')
-    encrypted_train_data = torch.zeros((640, 28 * 28), device='cuda', dtype=torch.uint8)
-    train_labels = train_dataset.targets
-    for i, data in enumerate(train_dataset.data.to('cuda')):
-        # only use 640 samples for debugging
-        if i >= 640:
-            break
-        encrypted_data = pytorch_aegis.encrypt_data(data.flatten(), key)
-        encrypted_train_data[i] = encrypted_data
-
-    # test data
-    test_dataset = datasets.MNIST('./data', train=False)
-    # encrypted_test_data = torch.zeros((test_dataset.__len__(), 28 * 28), device='cuda')
-    encrypted_test_data = torch.zeros((640, 28 * 28), device='cuda', dtype=torch.uint8)
-    test_labels = test_dataset.targets
-    for i, data in enumerate(test_dataset.data.to('cuda')):
-        # only use 640 samples for debugging
-        if i >= 640:
-            break
-        encrypted_data = pytorch_aegis.encrypt_data(data.flatten(), key)
-        encrypted_test_data[i] = encrypted_data
-    return encrypted_train_data.to('cpu'), train_labels, encrypted_test_data.to('cpu'), test_labels
+def load_and_encrypt(key, is_trainning):
+    dataset = datasets.MNIST('./data', train=is_trainning)
+    # encrypted_data = torch.zeros([dataset.__len__(), 28 * 28], device='cuda')
+    encrypted_data = torch.zeros([640, 28 * 28], device='cuda', dtype=torch.uint8)
+    # only use 640 samples for debugging
+    for sample in dataset.data[:640].to('cuda'):
+        encrypted_data[i] = pytorch_aegis.encrypt_data(sample.flatten(), key)
+    labels = dataset.targets.to('cuda')
+    return encrypted_data, labels
 
 
-def decrypt_batch(batch, key):
-    decrypted_batch = torch.zeros([64, 1, 28, 28], device='cuda', dtype=torch.uint8)
-    for i, sample in enumerate(batch):
+def decrypt_and_normalize(data, key):
+    # decrypt data
+    tmp = torch.zeros([len(data), 28 * 28], device='cuda', dtype=torch.uint8)
+    for i, sample in enumerate(data):
         decrypted_sample = pytorch_aegis.decrypt_data(sample, key)
-        decrypted_sample = decrypted_sample.reshape([1, 28, 28])
-        decrypted_batch[i] = decrypted_sample
-    return decrypted_batch
+        decrypted_sample = decrypted_sample
+        tmp[i] = decrypted_sample
+
+    # normalize data
+    tmp = tmp.float() / 255
+    means = torch.mean(tmp)
+    stds = torch.std(tmp)
+    decrypted_data = torch.zeros([len(data), 1, 28, 28], device='cuda', dtype=torch.float)
+    decrypted_data = (tmp.reshape([len(data), 1, 28, 28]) - means) / stds
+    return decrypted_data
 
 
 if __name__ == '__main__':
@@ -79,7 +72,12 @@ if __name__ == '__main__':
     key = pytorch_aegis.get_aegis_key_cuda()
 
     # load encrypted data
-    encrypted_train_data, train_labels, encrypted_test_data, test_labels = load_encrypted_data(key)
+    encrypted_train_data, train_labels = load_and_encrypt(key, True)
+    encrypted_test_data, test_labels = load_and_encrypt(key, False)
+
+    # decrypt data
+    decrypted_train_data = decrypt_and_normalize(encrypted_train_data, key)
+    decrypted_test_data = decrypt_and_normalize(encrypted_test_data, key)
 
     # define model
     net = Net()
@@ -91,15 +89,13 @@ if __name__ == '__main__':
     for epoch in range(epochs):
         # train
         running_loss = 0.0
-        for i in range(int(len(encrypted_train_data) / 64)):
+        for i in range(int(len(decrypted_train_data) / 64)):
             # batch samples
-            batch = encrypted_train_data[i * 64: (i + 1) * 64]
+            batch = decrypted_train_data[i * 64: (i + 1) * 64]
             labels = train_labels[i * 64: (i + 1) * 64]
-            inputs = decrypt_batch(batch, key)
-            labels = labels.to('cuda')
             # run
             optimizer.zero_grad()
-            outputs = net(inputs, key)
+            outputs = net(batch)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
@@ -112,15 +108,13 @@ if __name__ == '__main__':
 
         # test
         correct_num = 0.0
-        for i in range(int(len(encrypted_test_data) / 64)):
+        for i in range(int(len(decrypted_test_data) / 64)):
             # batch samples
-            batch = encrypted_test_data[i * 64: (i + 1) * 64]
-            labels = train_labels[i * 64: (i + 1) * 64]
-            inputs = decrypt_batch(batch, key)
-            labels = labels.to('cuda')
+            batch = decrypted_test_data[i * 64: (i + 1) * 64]
+            labels = test_labels[i * 64: (i + 1) * 64]
             # run
             optimizer.zero_grad()
-            outputs = net(inputs, key)
+            outputs = net(batch)
             _, predict = torch.max(outputs, 1)
             correct_num += torch.sum(predict == labels)
 
