@@ -485,7 +485,6 @@ __declspec(dllexport) void launchEncryptKernel(unsigned char* d_bitmapImage, uns
 	int B = ceil((double)size / (512 * Nb));
 	int T = 512;
 	int threadN = B * T;
-	fprintf(stderr, "launchEncryptKernel B=%d, T=%d\n", B, T);
 	encrypt <<<B, T >>> (d_bitmapImage, d_expanded_key, size, threadN);
 }
 __declspec(dllexport) void launchDecryptKernel(unsigned char* d_bitmapImage, unsigned char* d_expanded_key, int size) {
@@ -493,6 +492,28 @@ __declspec(dllexport) void launchDecryptKernel(unsigned char* d_bitmapImage, uns
 	int T = 512;
 	int threadN = B * T;
 	decrypt <<<B, T >>> (d_bitmapImage, d_expanded_key, size, threadN);
+}
+
+__global__ void rsa_decrypt(int* cipher, unsigned char* expanded_key, int* rsa_private_key, int size) {
+	int idx = threadIdx.x + blockIdx.x * blockDim.x;
+	if (idx < size) {
+		int d = rsa_private_key[0];
+		int p = rsa_private_key[1];
+		int q = rsa_private_key[2];
+		int n = p * q;
+		int c = cipher[idx];
+		int m = 1;
+		for (int i = 0; i < d; ++i) {
+			m = m * c;
+			m = m % n;
+		}
+		expanded_key[idx] = (unsigned char)m;
+	}
+}
+
+__declspec(dllexport) void launchRSADecryptKernel(int *cipher, unsigned char* d_expanded_key, int*rsa_private_key, int size) {
+	int B = ceil((double)size / 128);
+	rsa_decrypt <<<B, 128 >>> (cipher, d_expanded_key, rsa_private_key, size);
 }
 /*
 int main()
