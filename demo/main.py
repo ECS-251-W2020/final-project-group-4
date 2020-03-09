@@ -41,7 +41,7 @@ def load_and_encrypt(key, is_trainning):
     # encrypted_data = torch.zeros([dataset.__len__(), 28 * 28], device='cuda')
     encrypted_data = torch.zeros([640, 28 * 28], device='cuda', dtype=torch.uint8)
     # only use 640 samples for debugging
-    for sample in dataset.data[:640].to('cuda'):
+    for i, sample in enumerate(dataset.data[:640].to('cuda')):
         encrypted_data[i] = pytorch_aegis.encrypt_data(sample.flatten(), key)
     labels = dataset.targets.to('cuda')
     return encrypted_data, labels

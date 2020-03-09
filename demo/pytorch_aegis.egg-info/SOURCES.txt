@@ -1,0 +1,6 @@
+aegis.cpp
+setup.py
+pytorch_aegis.egg-info/PKG-INFO
+pytorch_aegis.egg-info/SOURCES.txt
+pytorch_aegis.egg-info/dependency_links.txt
+pytorch_aegis.egg-info/top_level.txt

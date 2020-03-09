@@ -6,10 +6,11 @@ We want to combine the security of hardware enclave for CPU and the speed of mac
 
 ## Introduction to the directory
 
-Two main folders:
+Three main folders:
 
 * [AegisEngine](./AegisEngine/): Intel SGX + CUDA AES algorithm implementation
-* [PytorchAegis](./PytorchAegis/): Pytorch binding for AegisEngine plus a runable demo for both array and image.
+* [PytorchAegis](./PytorchAegis/): Pytorch binding for AegisEngine plus a runable demo for both array and image
+* [demo](./demo/): Pytorch ImageNet training with `PytorchAegis`
 
 Other files are our previous works, such as a sample for implementing AES algorithm, a sample for Pytorch extension with CUDA, a sample for Intel Enclave(SGX).
 
