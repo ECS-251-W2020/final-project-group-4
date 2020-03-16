@@ -10,8 +10,31 @@ Two main folders:
 
 * [AegisEngine](./AegisEngine/): Intel SGX + CUDA AES algorithm implementation
 * [PytorchAegis](./PytorchAegis/): Pytorch binding for AegisEngine plus a runable demo for both array and image.
+* [demo](./demo): a simple use case
 
 Other files are our previous works, such as a sample for implementing AES algorithm, a sample for Pytorch extension with CUDA, a sample for Intel Enclave(SGX).
+
+## Build
+Before building the project, you need to install following developing tools and SDK:
+* Visual Studio 2017 or later
+* Pytorch 1.4 (CUDA 10.1 Version)
+* CUDA 10.1
+* Intel SGX SDK for Windows v2.6.100.2
+Of course, your CPU need to support Intel SGX and your GPU need to support CUDA.
+
+First step, build AegisEngine with Visual Studio. Please simply open the `AegisEngine.sln` file and build in in Pre-Release mode. 
+
+Second, copy all dll and lib files that generated in `AegisEngine/x64/Prelease` to `PytorchAegis` directory. 
+
+Third, install PytorchAegis with following command:
+```
+# python setup.py install
+```
+
+Then PytorchAegis will be installed into your Python environment.
+
+## Use cases
+Please check `demo` directory.
 
 ## Future work
 
