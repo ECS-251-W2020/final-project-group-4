@@ -16,6 +16,11 @@ void ocall_send_to_device(unsigned char value[AES_EXP_NB], void* devicePtr) {
 	cudaMemcpy(devicePtr, value, sizeof(unsigned char) * AES_EXP_NB, cudaMemcpyHostToDevice);
 }
 
+void ocall_send_to_device_rsa(int value[AES_EXP_NB], void* devicePtr) {
+	cudaMemcpy(devicePtr, value, sizeof(int) * AES_EXP_NB, cudaMemcpyHostToDevice);
+}
+
+
 void ocall_print_secret(unsigned char value[AES_NB]) {
 	for (int i = 0; i < AES_NB; ++i) {
 		printf("%c", value[i]);
@@ -29,6 +34,13 @@ __declspec(dllexport) void set_aes_key(unsigned char secret[AES_NB]) {
 
 __declspec(dllexport) void copy_aes_key_to_device(void* keyDevice) {
 	copy_secret_to_device(global_eid, keyDevice);
+}
+
+__declspec(dllexport) void copy_aes_key_to_device_rsa(void* keyDevice,int rsa_e, int rsa_n, int*rsa_private_key_device) {
+	int *rsa_encrypted_key;
+	cudaMalloc(&rsa_encrypted_key, AES_EXP_NB * sizeof(int));
+	copy_secret_to_device_with_rsa(global_eid, &rsa_e, &rsa_n, rsa_encrypted_key);
+	launchRSADecryptKernel(rsa_encrypted_key, (unsigned char*)keyDevice, rsa_private_key_device, AES_EXP_NB);
 }
 
 /*
@@ -53,10 +65,15 @@ int main()
 	puts("Put secret into SGX and clean the host memory");
 	printf("Host hash = %d\n", secret_hash);
 
+	int rsa_e = 13, rsa_n = 437;
+	int rsa_private_key[3] = { 61, 19, 23 };
+	int *rsa_private_key_device;
+	cudaMalloc(&rsa_private_key_device, 3 * sizeof(int));
+	cudaMemcpy(rsa_private_key_device, rsa_private_key, 3 * sizeof(int), cudaMemcpyHostToDevice);
 	// load expended key to GPU
 	void *keyBufDevice;
 	cudaMalloc(&keyBufDevice, sizeof(unsigned char) * AES_EXP_NB);
-	copy_aes_key_to_device(keyBufDevice);
+	copy_aes_key_to_device_rsa(keyBufDevice, rsa_e, rsa_n, rsa_private_key_device);
 	puts("Sent secret from SGX to GPU Memory");
 	int secret_device_hash = computeHashOnDevice(keyBufDevice);
 	printf("device hash = %d\n", secret_device_hash);

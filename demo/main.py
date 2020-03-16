@@ -39,10 +39,10 @@ class Net(nn.Module):
 def load_and_encrypt(key, is_trainning):
     dataset = datasets.MNIST('./data', train=is_trainning)
     # encrypted_data = torch.zeros([dataset.__len__(), 28 * 28], device='cuda')
-    encrypted_data = torch.zeros([640, 28 * 28], device='cuda', dtype=torch.uint8)
-    # only use 640 samples for debugging
-    for i, sample in enumerate(dataset.data[:640].to('cuda')):
-        encrypted_data[i] = pytorch_aegis.encrypt_data(sample.flatten(), key)
+    encrypted_data = torch.zeros([6400, 28 * 28], device='cuda', dtype=torch.uint8)
+    # only use 6400 samples for speed testing
+    for idx, sample in enumerate(dataset.data[:6400].to('cuda')):
+        encrypted_data[idx] = pytorch_aegis.encrypt_data(sample.flatten(), key)
     labels = dataset.targets.to('cuda')
     return encrypted_data, labels
 
@@ -71,6 +71,7 @@ if __name__ == '__main__':
     pytorch_aegis.set_aegis_key(key)
     key = pytorch_aegis.get_aegis_key_cuda()
 
+    start_time = time.time()
     # load encrypted data
     encrypted_train_data, train_labels = load_and_encrypt(key, True)
     encrypted_test_data, test_labels = load_and_encrypt(key, False)
@@ -78,7 +79,8 @@ if __name__ == '__main__':
     # decrypt data
     decrypted_train_data = decrypt_and_normalize(encrypted_train_data, key)
     decrypted_test_data = decrypt_and_normalize(encrypted_test_data, key)
-
+    end_time = time.time()
+    data_loading_time = end_time - start_time
     # define model
     net = Net()
     net = net.to('cuda')
@@ -122,4 +124,5 @@ if __name__ == '__main__':
 
     end_time = time.time()
     print('Finished Training')
-    print("time cost =", end_time - start_time, 's')
+    print("data loading cost = ", data_loading_time, 's')
+    print("training time cost =", end_time - start_time, 's')

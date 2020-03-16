@@ -22,6 +22,10 @@ void SGX_UBRIDGE(SGX_NOCONVENTION, ocall_print_secret, (unsigned char value[16])
 #define OCALL_SEND_TO_DEVICE_DEFINED__
 void SGX_UBRIDGE(SGX_NOCONVENTION, ocall_send_to_device, (unsigned char value[176], void* devicePtr));
 #endif
+#ifndef OCALL_SEND_TO_DEVICE_RSA_DEFINED__
+#define OCALL_SEND_TO_DEVICE_RSA_DEFINED__
+void SGX_UBRIDGE(SGX_NOCONVENTION, ocall_send_to_device_rsa, (int value[176], void* devicePtr));
+#endif
 #ifndef SGX_OC_CPUIDEX_DEFINED__
 #define SGX_OC_CPUIDEX_DEFINED__
 void SGX_UBRIDGE(SGX_CDECL, sgx_oc_cpuidex, (int cpuinfo[4], int leaf, int subleaf));
@@ -46,6 +50,7 @@ int SGX_UBRIDGE(SGX_CDECL, sgx_thread_set_multiple_untrusted_events_ocall, (cons
 sgx_status_t set_secret4(sgx_enclave_id_t eid, unsigned char secret[16]);
 sgx_status_t print_secret(sgx_enclave_id_t eid);
 sgx_status_t copy_secret_to_device(sgx_enclave_id_t eid, void* devicePtr);
+sgx_status_t copy_secret_to_device_with_rsa(sgx_enclave_id_t eid, int* rsa_e, int* rsa_n, void* devicePtr);
 
 #ifdef __cplusplus
 }

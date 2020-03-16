@@ -1,0 +1,16 @@
+Data size = 6400 
+
+Test Accuracy = 0.96234375
+Finished Training
+data loading cost =  4.585031986236572 s
+training time cost = 80.14798331260681 s
+
+Test Accuracy = 0.96421875
+Finished Training
+data loading cost =  4.496002197265625 s
+training time cost = 79.59360265731812 s
+
+Test Accuracy = 0.96203125
+Finished Training
+data loading cost =  4.427528381347656 s
+training time cost = 80.04685378074646 s

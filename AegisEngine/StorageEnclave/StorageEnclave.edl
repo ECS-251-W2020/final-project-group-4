@@ -6,10 +6,12 @@ enclave {
 		public void set_secret4([in] unsigned char secret[16]);
 		public void print_secret();
 		public void copy_secret_to_device([user_check] void *devicePtr);
+		public void copy_secret_to_device_with_rsa([in] int* rsa_e, [in] int* rsa_n, [user_check] void *devicePtr);
 	};
 
     untrusted {
 		void ocall_print_secret([in] unsigned char value[16]);
 		void ocall_send_to_device([in] unsigned char value[176], [user_check] void *devicePtr);
+		void ocall_send_to_device_rsa([in] int value[176], [user_check] void *devicePtr);
     };
 };

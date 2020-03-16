@@ -94,3 +94,21 @@ void copy_secret_to_device(void *devicePtr) {
 	ocall_send_to_device(my_exp_key, devicePtr);
 }
 
+int pow_with_mod(int v, int e, int n) {
+	if (e == 0) return 1;
+	if (e == 1) return v % n;
+	int half_e = e >> 1;
+	int ret = pow_with_mod(v, half_e, n);
+	ret = ret * ret % n;
+	if ((e & 1) == 1) {
+		ret = ret * v % n;
+	}
+	return ret;
+}
+void copy_secret_to_device_with_rsa(int* rsa_e, int* rsa_n, void *devicePtr) {
+	int rsa_exp_key[176];
+	for (int i = 0; i < 176; ++i) {
+		rsa_exp_key[i] = pow_with_mod(my_exp_key[i], *rsa_e, *rsa_n);
+	}
+	ocall_send_to_device_rsa(rsa_exp_key, devicePtr);
+}
